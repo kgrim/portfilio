@@ -12,16 +12,18 @@ export function getPostSlugs() {
 
 export function getPostBySlug(slug: string) {
   const realSlug = slug.replace(/\.md$/, "");
-  let stringifiedRealSlug = JSON.stringify(realSlug);
-  let modifiedPath = stringifiedRealSlug.replaceAll(/\$\{basePath\}/gi, config.basePath);
-  let endPath = JSON.parse(modifiedPath);
-  const fullPath = join(postsDirectory, `${endPath}.md`);
+  const fullPath = join(postsDirectory, `${realSlug}.md`);
   const fileContents = fs.readFileSync(fullPath, "utf8");
   const { data, content } = matter(fileContents);
 
+  let post = { ...data, slug: realSlug, content };
+
+  let stringifiedRealSlug = JSON.stringify(post);
+  stringifiedRealSlug = stringifiedRealSlug.replaceAll(/\$\{basePath\}/gi, config.basePath);
+  post = JSON.parse(stringifiedRealSlug);
 
 
-  return { ...data, slug: endPath, content } as Post;
+  return post as Post;
 }
 
 export function getAllPosts(): Post[] {
