@@ -62,3 +62,7 @@ Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&ut
 # Notes
 
 `blog-starter` uses [Tailwind CSS](https://tailwindcss.com) [(v3.0)](https://tailwindcss.com/blog/tailwindcss-v3).
+=======
+# portfilio
+This is my portfolio using github pages
+>>>>>>> 5d3795b78e88776325d741b7127283e7cc0df53a
