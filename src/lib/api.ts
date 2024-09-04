@@ -1,36 +1,55 @@
-import { Post } from "@/interfaces/post";
+import { LandingType } from "@/interfaces/landingType";
+import { LinkType } from "@/interfaces/linkType";
 import fs from "fs";
 import matter from "gray-matter";
 import { join } from "path";
 
 const config = require('../../next.config');
-const postsDirectory = join(process.cwd(), "_posts");
 
-export function getPostSlugs() {
-  return fs.readdirSync(postsDirectory);
+const linksDirectory = join(process.cwd(), "_links");
+const landingDirectory = join(process.cwd(), "_landing");
+
+export function getLinksSlugs() {
+  return fs.readdirSync(linksDirectory);
 }
 
-export function getPostBySlug(slug: string) {
+export function getLinkBySlug(slug: string) {
+
   const realSlug = slug.replace(/\.md$/, "");
-  const fullPath = join(postsDirectory, `${realSlug}.md`);
-  const fileContents = fs.readFileSync(fullPath, "utf8");
-  const { data, content } = matter(fileContents);
+  const fullPath = join(linksDirectory, `${realSlug}.md`);
 
-  let post = { ...data, slug: realSlug, content };
+  const data = getRealData(fullPath);
+  data.logoUrl = replaceBasePath(data?.url);
 
-  let stringifiedRealSlug = JSON.stringify(post);
-  stringifiedRealSlug = stringifiedRealSlug.replaceAll(/\$\{basePath\}/gi, config.basePath);
-  post = JSON.parse(stringifiedRealSlug);
-
-
-  return post as Post;
+  return data as LinkType;
 }
 
-export function getAllPosts(): Post[] {
-  const slugs = getPostSlugs();
-  const posts = slugs
-    .map((slug) => getPostBySlug(slug))
-    // sort posts by date in descending order
-    .sort((post1, post2) => (post1.date > post2.date ? -1 : 1));
-  return posts;
+export function getAllLinks(): LinkType[] {
+  const slugs = getLinksSlugs();
+  const links = slugs
+    .map((slug) => getLinkBySlug(slug));
+  return links;
+}
+
+export function getLandingData(){
+
+  const landing = fs.readdirSync(landingDirectory);
+  const fullPath = join(landingDirectory, landing[0]);
+
+  const data = getRealData(fullPath);
+  data.logoUrl = replaceBasePath(data?.logoUrl);
+
+  return data as LandingType;
+}
+
+function getRealData(fullPath : string = "")
+{
+  const fileContents = fs.readFileSync(fullPath, "utf8");
+  const { data } = matter(fileContents);
+
+  return data;
+}
+
+export function replaceBasePath(url : string){
+  return url?.replaceAll(/\$\{basePath\}/gi, config.basePath)
 }
